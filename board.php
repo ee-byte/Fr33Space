@@ -30,16 +30,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST["content"])) {
 // Load posts
 $raw = file($storage, FILE_IGNORE_NEW_LINES);
 
-// Build simple posts array
+// Build posts
 $posts = [];
 foreach ($raw as $line) {
     $parts = explode("|", $line);
     if (count($parts) !== 4) continue;
 
     list($id, $timestamp, $text, $parent) = $parts;
+
     $id = intval($id);
     $parent = intval($parent);
-
     if ($parent === $id) $parent = 0;
 
     $posts[$id] = [
@@ -50,32 +50,16 @@ foreach ($raw as $line) {
     ];
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
-<title>Board</title>
+<title>Message Board</title>
 <style>
-    body { background:black; color:lime; font-family:Courier New; }
+    body { background:black; color:lime; font-family:Courier New, monospace; }
     .post { border:1px solid lime; padding:10px; margin-top:10px; }
     textarea, button { background:black; color:lime; border:1px solid lime; }
-    .reply-container { margin-left:25px; display:none; }
-    .reply-form { display:none; margin-top:10px; }
-    .toggle-btn { cursor:pointer; color: lime; text-decoration:underline; }
+    details { margin-left:20px; margin-top:5px; }
 </style>
-
-<script>
-function toggleReplies(id) {
-    let box = document.getElementById("replies-" + id);
-    box.style.display = (box.style.display === "block") ? "none" : "block";
-}
-
-function toggleReplyForm(id) {
-    let form = document.getElementById("replyform-" + id);
-    form.style.display = (form.style.display === "block") ? "none" : "block";
-}
-</script>
-
 </head>
 <body>
 
@@ -89,7 +73,7 @@ function toggleReplyForm(id) {
 <hr>
 
 <?php
-// Render a single post without recursion
+// A fully TEXT-BROWSER SAFE renderer
 function render_post($posts, $id, $level = 0) {
     $p = $posts[$id];
 
@@ -100,38 +84,32 @@ function render_post($posts, $id, $level = 0) {
     }
 
     echo "<div class='post' style='margin-left:" . ($level * 25) . "px'>";
-    echo "<div><b>" . date('Y-m-d H:i:s', $p['time']) . "</b></div>";
-    echo "<div>{$p['text']}</div>";
+    echo "<b>" . date("Y-m-d H:i:s", $p["time"]) . "</b><br>";
+    echo $p["text"] . "<br><br>";
 
-    // Show replies button
-    if ($reply_count > 0) {
-        echo "<div class='toggle-btn' onclick='toggleReplies($id)'>
-                Show Replies ($reply_count)
-              </div>";
-    }
-
-    // Reply button
-    echo "<div class='toggle-btn' onclick='toggleReplyForm($id)'>
-            Reply
-          </div>";
-
-    // Hidden reply form
-    echo "<form id='replyform-$id' class='reply-form' method='POST'>
+    // Reply form wrapped in <details>
+    echo "<details><summary>Reply</summary>";
+    echo "<form method='POST'>
             <input type='hidden' name='parent' value='{$p['id']}'>
             <textarea name='content' rows='2' style='width:90%;'></textarea><br>
             <button type='submit'>Post Reply</button>
           </form>";
+    echo "</details>";
 
-    // Replies hidden block
-    echo "<div id='replies-$id' class='reply-container'>";
+    // Replies under <details> (works in all text browsers)
+    if ($reply_count > 0) {
+        echo "<details><summary>Replies ($reply_count)</summary>";
 
-    foreach ($posts as $child) {
-        if ($child["parent"] == $id) {
-            render_post($posts, $child["id"], $level + 1);
+        foreach ($posts as $child) {
+            if ($child["parent"] == $id) {
+                render_post($posts, $child["id"], $level + 1);
+            }
         }
+
+        echo "</details>";
     }
 
-    echo "</div></div>";
+    echo "</div>";
 }
 
 // Output top-level posts
