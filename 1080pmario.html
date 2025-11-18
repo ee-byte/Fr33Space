@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: skyblue;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="1920" height="1000"></canvas> //change for resolution
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const gravity = 1;
+  const friction = 0.8;
+
+  let keys = {};
+  document.addEventListener("keydown", e => keys[e.code] = true);
+  document.addEventListener("keyup", e => keys[e.code] = false);
+
+  class Player {
+    constructor(color, x) {
+      this.width = 10;
+      this.height = 20;
+      this.x = x;
+      this.y = canvas.height - this.height - 50;
+      this.velX = 0;
+      this.velY = 0;
+      this.jumping = false;
+      this.color = color;
+    }
+
+    update(controls) {
+      if (keys[controls.right] && this.velX < 5) this.velX++;
+      if (keys[controls.left] && this.velX > -5) this.velX--;
+      if (keys[controls.jump] && !this.jumping) {
+        this.jumping = true;
+        this.velY = -10;
+      }
+
+      this.velX *= friction;
+      this.velY += gravity;
+
+      this.x += this.velX;
+      this.y += this.velY;
+
+      // ground collision
+      if (this.y + this.height >= canvas.height - 50) {
+        this.y = canvas.height - this.height - 50;
+        this.jumping = false;
+        this.velY = 0;
+      }
+
+      // wall collision
+      if (this.x <= 0) this.x = 0;
+      if (this.x + this.width >= canvas.width) this.x = canvas.width - this.width;
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+
+  class Platform {
+    constructor(x, y, width, height) {
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.color = "green";
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+
+  const player = new Player("red", 50);
+  const player2 = new Player("blue", 100);
+
+  const controls1 = { left: "ArrowLeft", right: "ArrowRight", jump: "ArrowUp" };
+  const controls2 = { left: "KeyA", right: "KeyD", jump: "KeyW" };
+
+  const platforms = [];
+
+  const levels = [
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40), //List of platforms for level 1.
+new Platform(50, 500, 40, 20),
+new Platform(50, 900, 40, 20),
+new Platform(50, 800, 40, 20), //DO NOT ASK AI TO MAKE PLATFORMS
+new Platform(50, 700, 40, 20), //all it does is rewrite half the script and break it.
+new Platform(50, 600, 40, 20),
+new Platform(50, 400, 40, 20),
+new Platform(50, 300, 40, 20),
+new Platform(50, 200, 40, 20),
+new Platform(50, 100, 40, 20),
+new Platform(125, 850, 40, 20),
+new Platform(125, 750, 40, 20),
+new Platform(125, 650, 40, 20),
+new Platform(125, 550, 40, 20),
+new Platform(125, 450, 40, 20),
+new Platform(125, 350, 40, 20),
+new Platform(125, 250, 40, 20),
+new Platform(125, 150, 40, 20),
+new Platform(125, 50, 40, 20),
+new Platform(200, 900, 40, 20),
+new Platform(200, 800, 40, 20),
+new Platform(200, 700, 40, 20),
+new Platform(200, 600, 40, 20),
+new Platform(200, 500, 40, 20),
+new Platform(200, 400, 40, 20),
+new Platform(200, 300, 40, 20),
+new Platform(200, 200, 40, 20),
+new Platform(200, 100, 40, 20),
+new Platform(275, 850, 40, 20),
+new Platform(275, 750, 40, 20),
+new Platform(275, 650, 40, 20),
+new Platform(275, 550, 40, 20),
+new Platform(275, 450, 40, 20),
+new Platform(275, 350, 40, 20),
+new Platform(275, 250, 40, 20),
+new Platform(275, 150, 40, 20),
+new Platform(275, 50, 40, 20),
+new Platform(350, 900, 40, 20),
+new Platform(350, 800, 40, 20),
+new Platform(350, 700, 40, 20),
+new Platform(350, 600, 40, 20),
+new Platform(350, 500, 40, 20),
+new Platform(350, 400, 40, 20),
+new Platform(350, 300, 40, 20),
+new Platform(350, 200, 40, 20),
+new Platform(350, 100, 40, 20),
+new Platform(425, 850, 40, 20),
+new Platform(425, 750, 40, 20),
+new Platform(425, 650, 40, 20),
+new Platform(425, 550, 40, 20),
+new Platform(425, 450, 40, 20),
+new Platform(425, 350, 40, 20),
+new Platform(425, 250, 40, 20),
+new Platform(425, 150, 40, 20),
+new Platform(425, 50, 40, 20),
+new Platform(500, 900, 40, 20),
+new Platform(500, 800, 40, 20),
+new Platform(500, 700, 40, 20),
+new Platform(500, 600, 40, 20),
+new Platform(500, 500, 40, 20),
+new Platform(500, 400, 40, 20),
+new Platform(500, 300, 40, 20),
+new Platform(500, 200, 40, 20),
+new Platform(500, 100, 40, 20),
+new Platform(575, 850, 40, 20),
+new Platform(575, 750, 40, 20),
+new Platform(575, 650, 40, 20),
+new Platform(575, 550, 40, 20),
+new Platform(575, 450, 40, 20),
+new Platform(575, 350, 40, 20),
+new Platform(575, 250, 40, 20),
+new Platform(575, 150, 40, 20),
+new Platform(575, 50, 40, 20),
+new Platform(650, 900, 40, 20),
+new Platform(650, 800, 40, 20),
+new Platform(650, 700, 40, 20),
+new Platform(650, 600, 40, 20),
+new Platform(650, 500, 40, 20),
+new Platform(650, 400, 40, 20),
+new Platform(650, 300, 40, 20),
+new Platform(650, 200, 40, 20),
+new Platform(650, 100, 40, 20),
+new Platform(725, 850, 40, 20),
+new Platform(725, 750, 40, 20),
+new Platform(725, 650, 40, 20),
+new Platform(725, 550, 40, 20),
+new Platform(725, 450, 40, 20),
+new Platform(725, 350, 40, 20),
+new Platform(725, 250, 40, 20),
+new Platform(725, 150, 40, 20),
+new Platform(725, 50, 40, 20),
+new Platform(800, 900, 40, 20), //this code is ass, I wrote it in 8th grade don't judge.
+new Platform(800, 800, 40, 20),
+new Platform(800, 700, 40, 20),
+new Platform(800, 600, 40, 20),
+new Platform(800, 500, 40, 20),
+new Platform(800, 400, 40, 20),
+new Platform(800, 300, 40, 20),
+new Platform(800, 200, 40, 20),
+new Platform(800, 100, 40, 20),
+new Platform(875, 850, 40, 20),
+new Platform(875, 750, 40, 20),
+new Platform(875, 650, 40, 20),
+new Platform(875, 550, 40, 20),
+new Platform(875, 450, 40, 20),
+new Platform(875, 350, 40, 20),
+new Platform(875, 250, 40, 20),
+new Platform(875, 150, 40, 20),
+new Platform(875, 50, 40, 20),
+new Platform(950, 900, 40, 20),
+new Platform(950, 800, 40, 20),
+new Platform(950, 700, 40, 20),
+new Platform(950, 600, 40, 20),
+new Platform(950, 500, 40, 20),
+new Platform(950, 400, 40, 20),
+new Platform(950, 300, 40, 20),
+new Platform(950, 200, 40, 20),
+new Platform(950, 100, 40, 20),
+new Platform(1025, 850, 40, 20),
+new Platform(1025, 750, 40, 20),
+new Platform(1025, 650, 40, 20),
+new Platform(1025, 550, 40, 20),
+new Platform(1025, 450, 40, 20),
+new Platform(1025, 350, 40, 20),
+new Platform(1025, 250, 40, 20),
+new Platform(1025, 150, 40, 20),
+new Platform(1025, 50, 40, 20),
+new Platform(1100, 900, 40, 20),
+new Platform(1100, 800, 40, 20),
+new Platform(1100, 700, 40, 20),
+new Platform(1100, 600, 40, 20),
+new Platform(1100, 500, 40, 20),
+new Platform(1100, 400, 40, 20),
+new Platform(1100, 300, 40, 20),
+new Platform(1100, 200, 40, 20),
+new Platform(1100, 100, 40, 20),
+new Platform(1175, 850, 40, 20),
+new Platform(1175, 750, 40, 20),
+new Platform(1175, 650, 40, 20),
+new Platform(1175, 550, 40, 20),
+new Platform(1175, 450, 40, 20),
+new Platform(1175, 350, 40, 20),
+new Platform(1175, 250, 40, 20),
+new Platform(1175, 150, 40, 20),
+new Platform(1175, 50, 40, 20),
+new Platform(1250, 900, 40, 20),
+new Platform(1250, 800, 40, 20),
+new Platform(1250, 700, 40, 20),
+new Platform(1250, 600, 40, 20),
+new Platform(1250, 500, 40, 20),
+new Platform(1250, 400, 40, 20),
+new Platform(1250, 300, 40, 20),
+new Platform(1250, 200, 40, 20),
+new Platform(1250, 100, 40, 20),
+new Platform(1325, 850, 40, 20),
+new Platform(1325, 750, 40, 20),
+new Platform(1325, 650, 40, 20),
+new Platform(1325, 550, 40, 20),
+new Platform(1325, 450, 40, 20),
+new Platform(1325, 350, 40, 20),
+new Platform(1325, 250, 40, 20),
+new Platform(1325, 150, 40, 20),
+new Platform(1325, 50, 40, 20),
+new Platform(1400, 900, 40, 20),
+new Platform(1400, 800, 40, 20),
+new Platform(1400, 700, 40, 20),
+new Platform(1400, 600, 40, 20),
+new Platform(1400, 500, 40, 20),
+new Platform(1400, 400, 40, 20),
+new Platform(1400, 300, 40, 20),
+new Platform(1400, 200, 40, 20),
+new Platform(1400, 100, 40, 20),
+new Platform(1475, 850, 40, 20),
+new Platform(1475, 750, 40, 20),
+new Platform(1475, 650, 40, 20),
+new Platform(1475, 550, 40, 20),
+new Platform(1475, 450, 40, 20),
+new Platform(1475, 350, 40, 20),
+new Platform(1475, 250, 40, 20),
+new Platform(1475, 150, 40, 20),
+new Platform(1475, 50, 40, 20),
+new Platform(1550, 900, 40, 20),
+new Platform(1550, 800, 40, 20),
+new Platform(1550, 700, 40, 20),
+new Platform(1550, 600, 40, 20),
+new Platform(1550, 500, 40, 20),
+new Platform(1550, 400, 40, 20),
+new Platform(1550, 300, 40, 20),
+new Platform(1550, 200, 40, 20),
+new Platform(1550, 100, 40, 20),
+new Platform(1625, 850, 40, 20),
+new Platform(1625, 750, 40, 20),
+new Platform(1625, 650, 40, 20),
+new Platform(1625, 550, 40, 20),
+new Platform(1625, 450, 40, 20),
+new Platform(1625, 350, 40, 20),
+new Platform(1625, 250, 40, 20),
+new Platform(1625, 150, 40, 20),
+new Platform(1625, 50, 40, 20),
+new Platform(1700, 900, 40, 20),
+new Platform(1700, 800, 40, 20),
+new Platform(1700, 700, 40, 20),
+new Platform(1700, 600, 40, 20),
+new Platform(1700, 500, 40, 20),
+new Platform(1700, 400, 40, 20),
+new Platform(1700, 300, 40, 20),
+new Platform(1700, 200, 40, 20),
+new Platform(1700, 100, 40, 20),
+new Platform(1775, 850, 40, 20),
+new Platform(1775, 750, 40, 20),
+new Platform(1775, 650, 40, 20),
+new Platform(1775, 550, 40, 20),
+new Platform(1775, 450, 40, 20),
+new Platform(1775, 350, 40, 20),
+new Platform(1775, 250, 40, 20),
+new Platform(1775, 150, 40, 20),
+new Platform(1775, 50, 40, 20),
+new Platform(1850, 900, 40, 20),
+new Platform(1850, 800, 40, 20),
+new Platform(1850, 700, 40, 20),
+new Platform(1850, 600, 40, 20),
+new Platform(1850, 500, 40, 20),
+new Platform(1850, 400, 40, 20),
+new Platform(1850, 300, 40, 20),
+new Platform(1850, 200, 40, 20),
+new Platform(1850, 100, 40, 20),
+new Platform(1850, 50, 100, 20)
+
+    ],
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40), //Level 2
+   new Platform(50, 500, 40, 20),
+new Platform(50, 900, 20, 20),
+new Platform(50, 800, 20, 20),
+new Platform(50, 700, 20, 20),
+new Platform(50, 600, 20, 20),
+new Platform(50, 400, 20, 20),
+new Platform(50, 300, 20, 20),
+new Platform(50, 200, 20, 20),
+new Platform(50, 100, 20, 20),
+new Platform(125, 850, 20, 20),
+new Platform(125, 750, 20, 20),
+new Platform(125, 650, 20, 20),
+new Platform(125, 550, 20, 20),
+new Platform(125, 450, 20, 20),
+new Platform(125, 350, 20, 20),
+new Platform(125, 250, 20, 20),
+new Platform(125, 150, 20, 20),
+new Platform(125, 50, 20, 20),
+new Platform(200, 900, 20, 20),
+new Platform(200, 800, 20, 20),
+new Platform(200, 700, 20, 20),
+new Platform(200, 600, 20, 20),
+new Platform(200, 500, 20, 20),
+new Platform(200, 400, 20, 20),
+new Platform(200, 300, 20, 20),
+new Platform(200, 200, 20, 20),
+new Platform(200, 100, 20, 20),
+new Platform(275, 850, 20, 20),
+new Platform(275, 750, 20, 20),
+new Platform(275, 650, 20, 20),
+new Platform(275, 550, 20, 20),
+new Platform(275, 450, 20, 20),
+new Platform(275, 350, 20, 20),
+new Platform(275, 250, 20, 20),
+new Platform(275, 150, 20, 20),
+new Platform(275, 50, 20, 20),
+new Platform(350, 900, 20, 20),
+new Platform(350, 800, 20, 20),
+new Platform(350, 700, 20, 20),
+new Platform(350, 600, 20, 20),
+new Platform(350, 500, 20, 20),
+new Platform(350, 400, 20, 20),
+new Platform(350, 300, 20, 20),
+new Platform(350, 200, 20, 20),
+new Platform(350, 100, 20, 20),
+new Platform(425, 850, 20, 20),
+new Platform(425, 750, 20, 20),
+new Platform(425, 650, 20, 20),
+new Platform(425, 550, 20, 20),
+new Platform(425, 450, 20, 20),
+new Platform(425, 350, 20, 20),
+new Platform(425, 250, 20, 20),
+new Platform(425, 150, 20, 20),
+new Platform(425, 50, 20, 20),
+new Platform(500, 900, 20, 20),
+new Platform(500, 800, 20, 20),
+new Platform(500, 700, 20, 20),
+new Platform(500, 600, 20, 20),
+new Platform(500, 500, 20, 20),
+new Platform(500, 400, 20, 20),
+new Platform(500, 300, 20, 20),
+new Platform(500, 200, 20, 20),
+new Platform(500, 100, 20, 20),
+new Platform(575, 850, 20, 20),
+new Platform(575, 750, 20, 20),
+new Platform(575, 650, 20, 20),
+new Platform(575, 550, 20, 20),
+new Platform(575, 450, 20, 20),
+new Platform(575, 350, 20, 20),
+new Platform(575, 250, 20, 20),
+new Platform(575, 150, 20, 20),
+new Platform(575, 50, 20, 20),
+new Platform(650, 900, 20, 20),
+new Platform(650, 800, 20, 20),
+new Platform(650, 700, 20, 20),
+new Platform(650, 600, 20, 20),
+new Platform(650, 500, 20, 20),
+new Platform(650, 400, 20, 20),
+new Platform(650, 300, 20, 20),
+new Platform(650, 200, 20, 20),
+new Platform(650, 100, 20, 20),
+new Platform(725, 850, 20, 20),
+new Platform(725, 750, 20, 20),
+new Platform(725, 650, 20, 20),
+new Platform(725, 550, 20, 20),
+new Platform(725, 450, 20, 20),
+new Platform(725, 350, 20, 20),
+new Platform(725, 250, 20, 20),
+new Platform(725, 150, 20, 20),
+new Platform(725, 50, 20, 20),
+new Platform(800, 900, 20, 20),
+new Platform(800, 800, 20, 20),
+new Platform(800, 700, 20, 20),
+new Platform(800, 600, 20, 20),
+new Platform(800, 500, 20, 20),
+new Platform(800, 400, 20, 20),
+new Platform(800, 300, 20, 20),
+new Platform(800, 200, 20, 20),
+new Platform(800, 100, 20, 20),
+new Platform(875, 850, 20, 20),
+new Platform(875, 750, 20, 20),
+new Platform(875, 650, 20, 20),
+new Platform(875, 550, 20, 20),
+new Platform(875, 450, 20, 20),
+new Platform(875, 350, 20, 20),
+new Platform(875, 250, 20, 20),
+new Platform(875, 150, 20, 20),
+new Platform(875, 50, 20, 20),
+new Platform(950, 900, 20, 20),
+new Platform(950, 800, 20, 20),
+new Platform(950, 700, 20, 20),
+new Platform(950, 600, 20, 20),
+new Platform(950, 500, 20, 20),
+new Platform(950, 400, 20, 20),
+new Platform(950, 300, 20, 20),
+new Platform(950, 200, 20, 20),
+new Platform(950, 100, 20, 20),
+new Platform(1025, 850, 20, 20),
+new Platform(1025, 750, 20, 20),
+new Platform(1025, 650, 20, 20),
+new Platform(1025, 550, 20, 20),
+new Platform(1025, 450, 20, 20),
+new Platform(1025, 350, 20, 20),
+new Platform(1025, 250, 20, 20),
+new Platform(1025, 150, 20, 20),
+new Platform(1025, 50, 20, 20),
+new Platform(1100, 900, 20, 20),
+new Platform(1100, 800, 20, 20),
+new Platform(1100, 700, 20, 20),
+new Platform(1100, 600, 20, 20),
+new Platform(1100, 500, 20, 20),
+new Platform(1100, 400, 20, 20),
+new Platform(1100, 300, 20, 20),
+new Platform(1100, 200, 20, 20),
+new Platform(1100, 100, 20, 20),
+new Platform(1175, 850, 20, 20),
+new Platform(1175, 750, 20, 20),
+new Platform(1175, 650, 20, 20),
+new Platform(1175, 550, 20, 20),
+new Platform(1175, 450, 20, 20),
+new Platform(1175, 350, 20, 20),
+new Platform(1175, 250, 20, 20),
+new Platform(1175, 150, 20, 20),
+new Platform(1175, 50, 20, 20),
+new Platform(1250, 900, 20, 20),
+new Platform(1250, 800, 20, 20),
+new Platform(1250, 700, 20, 20),
+new Platform(1250, 600, 20, 20),
+new Platform(1250, 500, 20, 20),
+new Platform(1250, 400, 20, 20),
+new Platform(1250, 300, 20, 20),
+new Platform(1250, 200, 20, 20),
+new Platform(1250, 100, 20, 20),
+new Platform(1325, 850, 20, 20),
+new Platform(1325, 750, 20, 20),
+new Platform(1325, 650, 20, 20),
+new Platform(1325, 550, 20, 20),
+new Platform(1325, 450, 20, 20),
+new Platform(1325, 350, 20, 20),
+new Platform(1325, 250, 20, 20),
+new Platform(1325, 150, 20, 20),
+new Platform(1325, 50, 20, 20),
+new Platform(1400, 900, 20, 20),
+new Platform(1400, 800, 20, 20),
+new Platform(1400, 700, 20, 20),
+new Platform(1400, 600, 20, 20),
+new Platform(1400, 500, 20, 20),
+new Platform(1400, 400, 20, 20),
+new Platform(1400, 300, 20, 20),
+new Platform(1400, 200, 20, 20),
+new Platform(1400, 100, 20, 20),
+new Platform(1475, 850, 20, 20),
+new Platform(1475, 750, 20, 20),
+new Platform(1475, 650, 20, 20),
+new Platform(1475, 550, 20, 20),
+new Platform(1475, 450, 20, 20),
+new Platform(1475, 350, 20, 20),
+new Platform(1475, 250, 20, 20),
+new Platform(1475, 150, 20, 20),
+new Platform(1475, 50, 20, 20),
+new Platform(1550, 900, 20, 20),
+new Platform(1550, 800, 20, 20),
+new Platform(1550, 700, 20, 20),
+new Platform(1550, 600, 20, 20),
+new Platform(1550, 500, 20, 20),
+new Platform(1550, 400, 20, 20),
+new Platform(1550, 300, 20, 20),
+new Platform(1550, 200, 20, 20),
+new Platform(1550, 100, 20, 20),
+new Platform(1625, 850, 20, 20),
+new Platform(1625, 750, 20, 20),
+new Platform(1625, 650, 20, 20),
+new Platform(1625, 550, 20, 20),
+new Platform(1625, 450, 20, 20),
+new Platform(1625, 350, 20, 20),
+new Platform(1625, 250, 20, 20),
+new Platform(1625, 150, 20, 20),
+new Platform(1625, 50, 20, 20),
+new Platform(1700, 900, 20, 20),
+new Platform(1700, 800, 20, 20),
+new Platform(1700, 700, 20, 20),
+new Platform(1700, 600, 20, 20),
+new Platform(1700, 500, 20, 20),
+new Platform(1700, 400, 20, 20),
+new Platform(1700, 300, 20, 20),
+new Platform(1700, 200, 20, 20),
+new Platform(1700, 100, 20, 20),
+new Platform(1775, 850, 20, 20),
+new Platform(1775, 750, 20, 20),
+new Platform(1775, 650, 20, 20),
+new Platform(1775, 550, 20, 20),
+new Platform(1775, 450, 20, 20),
+new Platform(1775, 350, 20, 20),
+new Platform(1775, 250, 20, 20),
+new Platform(1775, 150, 20, 20),
+new Platform(1775, 50, 20, 20),
+new Platform(1850, 900, 20, 20),
+new Platform(1850, 800, 20, 20),
+new Platform(1850, 700, 20, 20),
+new Platform(1850, 600, 20, 20),
+new Platform(1850, 500, 20, 20),
+new Platform(1850, 400, 20, 20),
+new Platform(1850, 300, 20, 20),
+new Platform(1850, 200, 20, 20),
+new Platform(1850, 100, 20, 20),
+new Platform(1850, 50, 100, 20)
+
+    ],
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40), //Level 3
+   new Platform(50, 900, 20, 20),
+   new Platform(150, 870, 20, 20),
+   new Platform(250, 840, 20, 20),
+   new Platform(350, 810, 20, 20),
+   new Platform(450, 780, 20, 20),
+   new Platform(550, 750, 20, 20),
+   new Platform(650, 720, 20, 20),
+   new Platform(750, 690, 20, 20),
+   new Platform(850, 660, 20, 20),
+   new Platform(950, 630, 20, 20),
+   new Platform(1050, 600, 20, 20),
+   new Platform(1150, 570, 20, 20),
+   new Platform(1175, 500, 20, 20),
+   new Platform(1200, 430, 20, 20), //platforms technically close enough but ima kms before I beat this level, fix and add true array.
+   new Platform(1225, 360, 20, 20), 
+   new Platform(1250, 290, 20, 20),
+   new Platform(1275, 220, 20, 20),
+   new Platform(1350, 170, 20, 20),
+   new Platform(1450, 140, 20, 20),
+   new Platform(1550, 110, 20, 20),
+   new Platform(1650, 80, 20, 20),
+   new Platform(1750, 50, 20, 20)
+   ]
+  ];
+
+  let currentLevel = 0;
+
+  function loadLevel(index) {
+    platforms.splice(0, platforms.length, ...levels[index]);
+  }
+
+  function getGoalPlatform() {
+    return platforms.find(platform => platform.x === 1850 && platform.y === 50);
+  }
+
+  function checkGoal(p) {
+    const goalPlatform = getGoalPlatform();
+    if (
+      goalPlatform &&
+      p.x + p.width > goalPlatform.x &&
+      p.x < goalPlatform.x + goalPlatform.width &&
+      p.y + p.height >= goalPlatform.y &&
+      p.y + p.height <= goalPlatform.y + goalPlatform.height &&
+      p.velY >= 0
+    ) {
+      currentLevel++;
+      if (levels[currentLevel]) {
+        loadLevel(currentLevel);
+        p.x = 50;
+        p.y = canvas.height - p.height - 50;
+      } else {
+        alert("You won!");
+      }
+    }
+  }
+ //^^^possibly functional game ending, look into l8ter.^^^
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let plat of platforms) plat.draw();
+
+    for (let plat of platforms) {
+      [player, player2].forEach(p => {
+        if (
+          p.x + p.width > plat.x &&
+          p.x < plat.x + plat.width &&
+          p.y + p.height > plat.y &&
+          p.y + p.height < plat.y + plat.height &&
+          p.velY >= 0
+        ) {
+          p.y = plat.y - p.height;
+          p.jumping = false;
+          p.velY = 0;
+        }
+      });
+    }
+
+    player.update(controls1);
+    player.draw();
+    player2.update(controls2);
+    player2.draw();
+
+    checkGoal(player);
+    checkGoal(player2);
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Start the game
+  loadLevel(currentLevel);
+  gameLoop();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: skyblue;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="1200" height="600"></canvas>
+
+<script>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const gravity = 1;
+  const friction = 0.8;
+
+  let keys = {};
+  document.addEventListener("keydown", e => keys[e.code] = true);
+  document.addEventListener("keyup", e => keys[e.code] = false);
+
+  class Player {
+    constructor(color, x) {
+      this.width = 10;
+      this.height = 20;
+      this.x = x;
+      this.y = canvas.height - this.height - 50;
+      this.velX = 0;
+      this.velY = 0;
+      this.jumping = false;
+      this.color = color;
+    }
+
+    update(controls) {
+      if (keys[controls.right] && this.velX < 5) this.velX++;
+      if (keys[controls.left] && this.velX > -5) this.velX--;
+      if (keys[controls.jump] && !this.jumping) {
+        this.jumping = true;
+        this.velY = -10;
+      }
+
+      this.velX *= friction;
+      this.velY += gravity;
+
+      this.x += this.velX;
+      this.y += this.velY;
+
+      // ground collision
+      if (this.y + this.height >= canvas.height - 50) {
+        this.y = canvas.height - this.height - 50;
+        this.jumping = false;
+        this.velY = 0;
+      }
+
+      // wall collision
+      if (this.x <= 0) this.x = 0;
+      if (this.x + this.width >= canvas.width) this.x = canvas.width - this.width;
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+
+  class Platform {
+    constructor(x, y, width, height) {
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.color = "green";
+    }
+
+    draw() {
+      ctx.fillStyle = this.color;
+      ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+  }
+
+  const player = new Player("red", 50);
+  const player2 = new Player("blue", 100);
+
+  const controls1 = { left: "ArrowLeft", right: "ArrowRight", jump: "ArrowUp" };
+  const controls2 = { left: "KeyA", right: "KeyD", jump: "KeyW" };
+
+  const platforms = [];
+
+  const levels = [
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40),
+   new Platform(50, 500, 40, 20),
+   new Platform(50, 400, 40, 20),
+   new Platform(50, 300, 40, 20),
+   new Platform(50, 200, 40, 20),
+   new Platform(50, 100, 40, 20),
+   new Platform(125, 450, 40, 20),
+   new Platform(125, 350, 40, 20),
+   new Platform(125, 250, 40, 20),
+   new Platform(125, 150, 40, 20),
+   new Platform(125, 50, 40, 20),
+   new Platform(200, 500, 40, 20),
+   new Platform(200, 400, 40, 20),
+   new Platform(200, 300, 40, 20),
+   new Platform(200, 200, 40, 20),
+   new Platform(200, 100, 40, 20),
+   new Platform(275, 450, 40, 20),
+   new Platform(275, 350, 40, 20),
+   new Platform(275, 250, 40, 20),
+   new Platform(275, 150, 40, 20),
+   new Platform(275, 50, 40, 20),
+   new Platform(350, 500, 40, 20),
+   new Platform(350, 400, 40, 20),
+   new Platform(350, 300, 40, 20),
+   new Platform(350, 200, 40, 20),
+   new Platform(350, 100, 40, 20),
+   new Platform(425, 450, 40, 20),
+   new Platform(425, 350, 40, 20),
+   new Platform(425, 250, 40, 20),
+   new Platform(425, 150, 40, 20),
+   new Platform(425, 50, 40, 20),
+   new Platform(500, 500, 40, 20),
+   new Platform(500, 400, 40, 20),
+   new Platform(500, 300, 40, 20),
+   new Platform(500, 200, 40, 20),
+   new Platform(500, 100, 40, 20),
+   new Platform(575, 450, 40, 20),
+   new Platform(575, 350, 40, 20),
+   new Platform(575, 250, 40, 20),
+   new Platform(575, 150, 40, 20),
+   new Platform(575, 50, 40, 20),
+   new Platform(650, 500, 40, 20),
+   new Platform(650, 400, 40, 20),
+   new Platform(650, 300, 40, 20),
+   new Platform(650, 200, 40, 20),
+   new Platform(650, 100, 40, 20),
+   new Platform(725, 450, 40, 20),
+   new Platform(725, 350, 40, 20),
+   new Platform(725, 250, 40, 20),
+   new Platform(725, 150, 40, 20),
+   new Platform(725, 50, 40, 20),
+   new Platform(800, 500, 40, 20),
+   new Platform(800, 400, 40, 20),
+   new Platform(800, 300, 40, 20),
+   new Platform(800, 200, 40, 20),
+   new Platform(800, 100, 40, 20),
+   new Platform(875, 450, 40, 20),
+   new Platform(875, 350, 40, 20),
+   new Platform(875, 250, 40, 20),
+   new Platform(875, 150, 40, 20),
+   new Platform(875, 50, 40, 20),
+   new Platform(950, 500, 40, 20),
+   new Platform(950, 400, 40, 20),
+   new Platform(950, 300, 40, 20),
+   new Platform(950, 200, 40, 20),
+   new Platform(950, 100, 40, 20),
+   new Platform(1025, 450, 40, 20),
+   new Platform(1025, 350, 40, 20),
+   new Platform(1025, 250, 40, 20),
+   new Platform(1025, 150, 40, 20),
+   new Platform(1025, 50, 40, 20),
+   new Platform(1100, 500, 40, 20),
+   new Platform(1100, 400, 40, 20),
+   new Platform(1100, 300, 40, 20),
+   new Platform(1100, 200, 40, 20),
+   new Platform(1100, 100, 40, 20),
+   new Platform(1100, 50, 100, 20)
+
+    ],
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40),
+   new Platform(50, 500, 20, 20),
+   new Platform(50, 400, 20, 20),
+   new Platform(50, 300, 20, 20),
+   new Platform(50, 200, 20, 20),
+   new Platform(50, 100, 20, 20),
+   new Platform(125, 450, 20, 20),
+   new Platform(125, 350, 20, 20),
+   new Platform(125, 250, 20, 20),
+   new Platform(125, 150, 20, 20),
+   new Platform(125, 50, 20, 20),
+   new Platform(200, 500, 20, 20),
+   new Platform(200, 400, 20, 20),
+   new Platform(200, 300, 20, 20),
+   new Platform(200, 200, 20, 20),
+   new Platform(200, 100, 20, 20),
+   new Platform(275, 450, 20, 20),
+   new Platform(275, 350, 20, 20),
+   new Platform(275, 250, 20, 20),
+   new Platform(275, 150, 20, 20),
+   new Platform(275, 50, 20, 20),
+   new Platform(350, 500, 20, 20),
+   new Platform(350, 400, 20, 20),
+   new Platform(350, 300, 20, 20),
+   new Platform(350, 200, 20, 20),
+   new Platform(350, 100, 20, 20),
+   new Platform(425, 450, 20, 20),
+   new Platform(425, 350, 20, 20),
+   new Platform(425, 250, 20, 20),
+   new Platform(425, 150, 20, 20),
+   new Platform(425, 50, 20, 20),
+   new Platform(500, 500, 20, 20),
+   new Platform(500, 400, 20, 20),
+   new Platform(500, 300, 20, 20),
+   new Platform(500, 200, 20, 20),
+   new Platform(500, 100, 20, 20),
+   new Platform(575, 450, 20, 20),
+   new Platform(575, 350, 20, 20),
+   new Platform(575, 250, 20, 20),
+   new Platform(575, 150, 20, 20),
+   new Platform(575, 50, 20, 20),
+   new Platform(650, 500, 20, 20),
+   new Platform(650, 400, 20, 20),
+   new Platform(650, 300, 20, 20),
+   new Platform(650, 200, 20, 20),
+   new Platform(650, 100, 20, 20),
+   new Platform(725, 450, 20, 20),
+   new Platform(725, 350, 20, 20),
+   new Platform(725, 250, 20, 20),
+   new Platform(725, 150, 20, 20),
+   new Platform(725, 50, 20, 20),
+   new Platform(800, 500, 20, 20),
+   new Platform(800, 400, 20, 20),
+   new Platform(800, 300, 20, 20),
+   new Platform(800, 200, 20, 20),
+   new Platform(800, 100, 20, 20),
+   new Platform(875, 450, 20, 20),
+   new Platform(875, 350, 20, 20),
+   new Platform(875, 250, 20, 20),
+   new Platform(875, 150, 20, 20),
+   new Platform(875, 50, 20, 20),
+   new Platform(950, 500, 20, 20),
+   new Platform(950, 400, 20, 20),
+   new Platform(950, 300, 20, 20),
+   new Platform(950, 200, 20, 20),
+   new Platform(950, 100, 20, 20),
+   new Platform(1025, 450, 20, 20),
+   new Platform(1025, 350, 20, 20),
+   new Platform(1025, 250, 20, 20),
+   new Platform(1025, 150, 20, 20),
+   new Platform(1025, 50, 20, 20),
+   new Platform(1100, 500, 20, 20),
+   new Platform(1100, 400, 20, 20),
+   new Platform(1100, 300, 20, 20),
+   new Platform(1100, 200, 20, 20),
+   new Platform(1100, 100, 20, 20),
+   new Platform(1100, 50, 100, 20),
+
+    ],
+    [
+      new Platform(0, canvas.height - 40, canvas.width, 40),
+   new Platform(0, 450, 1100, 20),
+   new Platform(1100, 510, 100, 50),
+   new Platform(0, 410, 100, 50),
+   new Platform(1100, 50, 100, 20),
+   new Platform(100, 350, 1100, 20),
+   new Platform(0, 250, 1100, 20),
+   new Platform(1100, 310, 100, 20)
+   ]
+  ];
+
+  let currentLevel = 0;
+
+  function loadLevel(index) {
+    platforms.splice(0, platforms.length, ...levels[index]);
+  }
+
+  function getGoalPlatform() {
+    return platforms.find(platform => platform.x === 1100 && platform.y === 50);
+  }
+
+  function checkGoal(p) {
+    const goalPlatform = getGoalPlatform();
+    if (
+      goalPlatform &&
+      p.x + p.width > goalPlatform.x &&
+      p.x < goalPlatform.x + goalPlatform.width &&
+      p.y + p.height >= goalPlatform.y &&
+      p.y + p.height <= goalPlatform.y + goalPlatform.height &&
+      p.velY >= 0
+    ) {
+      currentLevel++;
+      if (levels[currentLevel]) {
+        loadLevel(currentLevel);
+        p.x = 50;
+        p.y = canvas.height - p.height - 50;
+      } else {
+        alert("You won!");
+      }
+    }
+  }
+
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let plat of platforms) plat.draw();
+
+    for (let plat of platforms) {
+      [player, player2].forEach(p => {
+        if (
+          p.x + p.width > plat.x &&
+          p.x < plat.x + plat.width &&
+          p.y + p.height > plat.y &&
+          p.y + p.height < plat.y + plat.height &&
+          p.velY >= 0
+        ) {
+          p.y = plat.y - p.height;
+          p.jumping = false;
+          p.velY = 0;
+        }
+      });
+    }
+
+    player.update(controls1);
+    player.draw();
+    player2.update(controls2);
+    player2.draw();
+
+    checkGoal(player);
+    checkGoal(player2);
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Start the game
+  loadLevel(currentLevel);
+  gameLoop();
+</script>
+</body>
+</html>
+
